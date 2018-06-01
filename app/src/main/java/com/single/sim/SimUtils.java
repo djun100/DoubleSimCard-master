@@ -6,11 +6,15 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.lang.reflect.Method;
+import java.util.List;
+
+import static android.content.Context.TELEPHONY_SERVICE;
 
 /**
  * Created by xiangcheng on 17/7/13.
@@ -91,7 +95,7 @@ public class SimUtils {
     }
 
     public static Object getSimByMethod(Context context, String method, int param) {
-        TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephony = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
         try {
             Class<?> telephonyClass = Class.forName(telephony.getClass().getName());
             Class<?>[] parameter = new Class[1];
@@ -123,7 +127,7 @@ public class SimUtils {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectionManager.getActiveNetworkInfo();
         TelephonyManager tm = (TelephonyManager) context
-                .getSystemService(Context.TELEPHONY_SERVICE);
+                .getSystemService(TELEPHONY_SERVICE);
         Log.d(TAG, "state:" + tm.getSimState());
         if (networkInfo != null) {
             if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
@@ -205,4 +209,24 @@ public class SimUtils {
 
     }
 
+    /**获取手机的卡槽数量
+     * @param context
+     * @return
+     */
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public static int getSlotSum(Context context){
+        TelephonyManager tm = (TelephonyManager)context.getSystemService(TELEPHONY_SERVICE);
+         return tm.getPhoneCount();
+    }
+
+    /**获取手机插入的手机卡数量
+     * @param context
+     * @return
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
+    public static int getSimNums(Context context){
+        SubscriptionManager subscriptionManager = SubscriptionManager.from(context);
+        List<SubscriptionInfo> subInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+        return subscriptionManager.getActiveSubscriptionInfoCount();
+    }
 }
